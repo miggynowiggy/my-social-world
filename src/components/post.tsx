@@ -7,8 +7,7 @@ import { formatDateToRelative } from "utils/dateFormat"
 import { IComment } from 'models/index';
 import { Card, Avatar, Row, Col, Image, Button, Popconfirm } from 'antd'
 import { Typography } from 'antd';
-import { CommentOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons"
-import { DeleteForever } from "@mui/icons-material"
+import { CommentOutlined, HeartFilled, HeartOutlined, DeleteFilled } from "@ant-design/icons"
 import { useStores } from "store"
 import { observer } from "mobx-react-lite"
 
@@ -146,7 +145,7 @@ const Post = ({
                 style={{
                   color: '#FF7C9B'
                 }}
-                icon={<DeleteForever />} 
+                icon={<DeleteFilled />} 
               />
             </Popconfirm>          
           </Col>
