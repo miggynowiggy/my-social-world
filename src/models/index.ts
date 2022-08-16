@@ -1,38 +1,45 @@
-export interface IUser {
+export type IUser = {
   id: number;
-  fullName: string;
+  full_name: string;
+  display_photo?: string;
   email: string;
   password?: string;
-  created_at: Date | string;
-  updated_at: Date | String;
-  authId?: string;
+  created_at?: Date | string;
+  updated_at?: Date | String;
+  auth_id: string;
 }
 
-export interface IPost {
+export type IPost = {
   id: number;
   user: IUser;
   content: string;
+  likes: string[];
+  user_id?: number;
+  auth_id?: string;
+  filename?: string;
+  attachment_url?: string;
   created_at: Date | string;
   updated_at: Date | string;
 }
 
-export interface IComment {
+export type IComment = {
   id: number;
   post: IPost;
+  post_id: number;
   user: IUser;
   content: string;
   created_at: Date | string;
   updated_at: Date | string;
 }
 
-export interface IConversation {
+export type IConversation = {
   id: number;
   name: string;
   creator: IUser;
   created_at: Date | string;
 }
 
-export interface IMessage {
+export type IMessage = {
   id: IUser;
   content: string;
   sender: IUser;

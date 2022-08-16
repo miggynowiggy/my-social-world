@@ -1,37 +1,26 @@
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Unstable_Grid2'
-import Stack from '@mui/material/Stack'
-import { Typography } from '@mui/material'
+import { Row, Col, Typography, Card, Button } from 'antd';
 import { useNavigate } from 'react-router-dom'
+import BlankLayout from 'layouts/BlankLayout';
 
 const ForgotPasswordSuccess = () => {
   const navigate = useNavigate()
 
   return (
-    <Grid container alignItems="center" justifyContent="center" height="100vh">
-      <Grid xs={4}>
-        <Paper 
-          elevation={5}
-          sx={{ padding: 5, color: 'primary' }}
-        >
-          <Stack spacing={2}>
-            <Typography variant="h5" align="center" gutterBottom>Forgot Password</Typography>
-            <Typography variant="body1" align="center">An email will be sent to you regarding the next steps to reset your password.</Typography>
+    <BlankLayout>
+      <Row align="middle" justify="center" style={{ height: '100%' }}>
+        <Col xs={{ span: 20 }} sm={{ span: 20 }} md={{ span: 8 }}>
+          <Card>
+            <Typography.Title>Password Reset Email was Sent!</Typography.Title>
+            <Typography.Paragraph>Please check your email to proceed with the password reset</Typography.Paragraph>
             <Button 
-              variant="contained"
-              color="primary"
-              size="small"
-              fullWidth
-              disableElevation
-              onClick={() => navigate('/login')}
-            >
-              Back to Login
-            </Button>
-          </Stack>
-        </Paper>
-      </Grid>
-    </Grid>
+              type="primary" 
+              onClick={() => navigate('/login')} 
+              style={{ marginBlock: 4 }}
+            >Back to Login</Button>
+          </Card>
+        </Col>
+      </Row>
+    </BlankLayout>
   )
 }
 

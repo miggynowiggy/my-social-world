@@ -1,80 +1,70 @@
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Unstable_Grid2'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import * as yup from 'yup'
-import {Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from 'configs/supabase'
+import toast from 'react-hot-toast'
+import { Card, Col, Row, Form, Input, Button } from 'antd';
+import BlankLayout from 'layouts/BlankLayout';
 
 const ForgotPassword = () => {
   const navigate = useNavigate()
 
-  const validationScheme = yup.object({
-    email: yup
-      .string()
-      .email('Invalid email')
-      .required('Email is required')
-  })
+  const onFormSubmit = async ({ email }: { email: string }) => {
+    const { error } = await supabase.functions.invoke('forgot-password', {
+      body: JSON.stringify({ email })
+    });
 
-  const formik = useFormik({
-    initialValues: {
-      email: '',
-    },
-    validateOnBlur: true,
-    validateOnChange: true,
-    validateOnMount: true,
-    validationSchema: validationScheme,
-    onSubmit: async ({ email }, { setFieldError }) => {
+    if (error?.message) {
+      toast.error(error?.message || 'Something went wrong, please try again later');
+    } else {
       navigate('/forgot-password-success')
     }
-  })
+  }
 
   return (
-    <Grid container alignItems="center" justifyContent="center" height="100vh">
-      <Grid xs={4}>
-        <Paper 
-          elevation={5}
-          sx={{ padding: 5, color: 'primary' }}
-        >
-          <Stack spacing={2}>
-            <Typography variant="h5" align="center" gutterBottom>Forgot Password</Typography>
-            <TextField 
-              id="email" 
-              label="Enter your Registered Email"
-              variant="outlined"
-              type="email"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              error={formik.touched.email && Boolean(formik.errors.email)}
-              helperText={formik.touched.email && formik.errors.email ? formik.errors.email : null}
-              sx={{ m: 1, width: '100%' }}
-            />
-
-            <Button
-              variant="contained" 
-              color="primary" 
-              disableElevation
-              fullWidth
-              onClick={formik.submitForm}
+    <BlankLayout>
+      <Row align="middle" justify="center" style={{ height: '100%' }}>
+        <Col xs={{ span: 20 }} sm={{ span: 20 }} md={{ span: 8 }}>
+          <Card 
+            title="Forgot Password"
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
+          >
+            <Form
+              name="forgotPasswordForm"
+              layout="vertical"
+              initialValues={{
+                email: ''
+              }}
+              onFinish={onFormSubmit}
             >
-              Send Password Reset Email
-            </Button>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Email is required!',
+                  }
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-            <Button 
-              variant="text"
-              color="primary"
-              size="small"
-              fullWidth
-              onClick={() => navigate('/login')}
-            >
-              Back to Login
-            </Button>
-          </Stack>
-        </Paper>
-      </Grid>
-    </Grid>
+              <Form.Item wrapperCol={{ span: 24 }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                >
+                  Send Password Reset Link
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
+    </BlankLayout>
   )
 }
 

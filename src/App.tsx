@@ -1,11 +1,9 @@
 import React, { Suspense } from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
-import { ThemeProvider } from '@mui/material';
 import { Toaster } from 'react-hot-toast'
-import customTheme from 'theme'
 import { createStore, StoreProvider } from 'store'
 import Router from 'routes'
+import './App.css'
 
 const Loading = () => (
   <div>
@@ -17,16 +15,15 @@ function App() {
   return (
     <StoreProvider store={createStore()}>
       <Suspense fallback={<Loading />}>
-        <ThemeProvider theme={customTheme}>
-          <ScopedCssBaseline enableColorScheme>
-            <Toaster
-              position="bottom-center"
-            />
-            <BrowserRouter>
-              <Router />
-            </BrowserRouter>
-          </ScopedCssBaseline>
-        </ThemeProvider>
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 6500
+          }}
+        />
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
       </Suspense>
     </StoreProvider>
   )

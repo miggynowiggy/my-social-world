@@ -1,147 +1,114 @@
-import { useState } from 'react'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Unstable_Grid2'
-import Stack from '@mui/material/Stack'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import Visibility from '@mui/icons-material/Visibility'
-import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import { useFormik } from 'formik'
-import { observer } from 'mobx-react-lite'
-import * as yup from 'yup'
-import { FormControl, FormHelperText, InputLabel, Typography } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from 'configs/supabase'
 import toast from 'react-hot-toast'
+import { Button, Card, Col, Form, Input, Row } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import BlankLayout from 'layouts/BlankLayout'
 
 const Login = () => {
-  const location = useLocation()
   const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
 
-  // @ts-ignore
-  const from = location.state?.from || "/"
-
-  const validationScheme = yup.object({
-    email: yup
-      .string()
-      .email('Invalid email')
-      .required('Email is required'),
-    password: yup
-      .string()
-      .min(8, 'Password should be a minimum of 8 characters')
-      .required('Password is required')
-  })
-
-  const formik = useFormik({
-    initialValues: {
-      email: '',
-      password: ''
-    },
-    validateOnBlur: true,
-    validateOnChange: true,
-    validateOnMount: true,
-    validationSchema: validationScheme,
-    onSubmit: async ({ email, password }) => {
-      const { error } = await supabase.auth.signIn({ email, password });
-      if (error?.message) {
-        console.log('LOGIN ERROR: ', error);
-        toast.error(
-          error?.message || "Something went wrong, please try again later", 
-        )
-      }
+  const onFormSubmit = async ({ email, password }: { email: string, password: string}) => {
+    const { error } = await supabase.auth.signIn({ email, password });
+    if (error?.message) {
+      toast.error(error?.message || 'Something went wrong, please try again later...');
     }
-  })
-
-  const handleShowPassword = () => setShowPassword(!showPassword)
-
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
   }
 
   return (
-    <Grid container alignItems="center" justifyContent="center" height="100vh">
-      <Grid xs={4}>
-        <Paper 
-          elevation={5}
-          sx={{ padding: 5, color: 'primary' }}
-        >
-          <Stack spacing={2}>
-            <Typography variant="h5" align="center" gutterBottom>Log In</Typography>
-            <TextField 
-              id="email" 
-              label="Email"
-              variant="outlined"
-              type="email"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              error={formik.touched.email && Boolean(formik.errors.email)}
-              helperText={formik.touched.email && formik.errors.email ? formik.errors.email : null}
-              sx={{ m: 1, width: '100%' }}
-            />
-            
-            <FormControl 
-              sx={{ m: 1, width: '100%' }}
-              variant="outlined"
-              error={formik.touched.password && Boolean(formik.errors.password)}
+    <BlankLayout>
+      <Row justify="center" align="middle" style={{ height: '100%' }}>
+        <Col xs={{ span: 20 }} sm={{ span: 20 }} md={{ span: 8 }}>
+          <Card 
+            title="Login" 
+            bordered 
+            style={{ width: '100%' }}
+          >
+            <Form
+              name="loginForm"
+              layout="vertical"
+              wrapperCol={{
+                span: 24
+              }}
+              labelCol={{
+                span: 6
+              }}
+              initialValues={{
+                email: '',
+                password: ''
+              }}
+              onFinish={onFormSubmit}
             >
-              <InputLabel htmlFor="password">Password</InputLabel>
-              <OutlinedInput
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                error={formik.touched.password && Boolean(formik.errors.password)}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Email is required!',
+                  }
+                ]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
                 label="Password"
-              />
-              <FormHelperText>{formik.touched.password && formik.errors.password ? formik.errors.password : null}</FormHelperText>
-            </FormControl>
-            <Button
-              variant="contained" 
-              color="primary" 
-              disableElevation
-              fullWidth
-              onClick={formik.submitForm}
-            >
-              Login
-            </Button>
-            <Button 
-              variant="outlined"
-              color="primary"
-              size="small"
-              fullWidth
-              onClick={() => navigate('/register')}
-            >
-              Register
-            </Button>
-            <Button 
-              variant="text"
-              color="warning"
-              size="small"
-              fullWidth
-              onClick={() => navigate('/forgot-password')}
-            >
-              Forget Password?
-            </Button>
-          </Stack>
-        </Paper>
-      </Grid>
-    </Grid>
+                name="password"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Password is required!'
+                  },
+                  {
+                    min: 8,
+                    message: 'Password should be 8 characters long!'
+                  }
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+
+              <Form.Item
+                wrapperCol={{ span: 24 }}
+              >
+                <Button 
+                  type="primary" 
+                  htmlType="submit"
+                  block
+                >
+                  Login
+                </Button>
+              </Form.Item>
+
+              <Form.Item
+                wrapperCol={{ span: 24 }}
+              >
+                <Button 
+                  type="dashed" 
+                  block
+                  onClick={() => navigate('/register')}
+                >
+                  Register
+                </Button>
+              </Form.Item>
+
+              <Form.Item
+                wrapperCol={{ span: 24 }}
+              >
+                <Button
+                  type="text"
+                  onClick={() => navigate('/forgot-password')}
+                  block
+                >
+                    Forgot Password
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
+    </BlankLayout>
   )
 }
 
-export default observer(Login)
+export default Login

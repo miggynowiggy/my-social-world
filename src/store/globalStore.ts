@@ -3,6 +3,8 @@ import RootStore from './rootStore'
 import { User } from '@supabase/supabase-js'
 import { supabase } from "configs/supabase";
 import { IUser } from "models";
+import type { IPost } from 'models'
+import { formatDate } from '../utils/dateFormat';
 
 export default class GlobalStore {
   public rootStore: RootStore;
@@ -16,6 +18,7 @@ export default class GlobalStore {
   @observable.ref isLoggedIn: boolean = supabase.auth.user()?.id ? true : false
   @observable authUser: User | null = supabase.auth.user()
   @observable user: IUser | null = null;
+  @observable posts: IPost[] = []
 
 
   // declare below your methods / functions that will act as 
@@ -33,5 +36,31 @@ export default class GlobalStore {
   @action
   public setUser (user: IUser | null) {
     this.user = user;
+  }
+
+  @action
+  public setPosts (posts: IPost[] | []) {
+    this.posts = [...posts]
+  }
+
+  @action
+  public addPost (newPost: IPost) {
+    this.posts.push(newPost);
+  }
+
+  @action
+  public updatePost (post: IPost) {
+    const index = this.posts.findIndex(p => p.id === post.id);
+    if (index !== -1) {
+      this.posts.splice(index, 1, post);
+    }
+  }
+
+  @action
+  public removePost (id: number) {
+    const index = this.posts.findIndex(p => p.id === id)
+    if (index !== -1) {
+      this.posts.splice(index, 1)
+    }
   }
 }

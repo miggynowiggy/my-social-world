@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { observer } from 'mobx-react-lite';
 import AuthenticatedRoutes from './authenticated'
 import { supabase } from 'configs/supabase'
 import { useStores } from 'store'
@@ -12,46 +12,48 @@ import Register from 'pages/Register'
 import ForgotPassword from 'pages/ForgotPassword'
 import ForgotPasswordSuccess from 'pages/ForgotPasswordSuccess'
 import Home from 'pages/Home'
-import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
 
-export default function Router() {
+import { IUser } from 'models';
+
+const Router = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [triggered, setTriggered] = useState(false)
+  const { globalStore } = useStores()
 
   const getUser = useCallback(async () => {
     if (supabase.auth.user()) {
       const response = await supabase
-        .from('user_profiles')
-        .select(`
-          id,
-          fullName,
-          email
-        `)
-        .eq('authId', supabase.auth.user()?.id)
-      console.log(response)
+        .from<IUser>('user_profiles')
+        .select(`*`)
+        .eq('auth_id', supabase.auth.user()?.id)
+      globalStore.setUser(response.data?.length ? response.data[0] : null);
     }
-  }, [])
+  }, [supabase.auth.user()])
 
   useEffect(() => {
     if (!triggered) {
       setTriggered(true)
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('EVENT: ', event)
-        console.log('SESSION', session)
-  
-        if (event === 'SIGNED_IN') {
-          // @ts-ignore
-          const from = location.state?.from || '/';
-          await getUser()
-          navigate(from, { replace: true })
-        }
-  
-        if (event === 'SIGNED_OUT') {
-          navigate('/login')
+      supabase.auth.onAuthStateChange(async (event) => {  
+        switch (event) {
+          case 'SIGNED_IN': {
+            // @ts-ignore
+            const from = location.state?.from || '/';
+            navigate(from, { replace: true })
+            break;
+          }
+
+          case 'SIGNED_OUT': {
+            navigate('/login')
+            break;
+          }
         }
       })
+      getUser()
+    }
+
+    return () => {
+      supabase.removeAllSubscriptions()
     }
   }, [])
 
@@ -71,3 +73,5 @@ export default function Router() {
     </Routes>
   )
 }
+
+export default observer(Router)

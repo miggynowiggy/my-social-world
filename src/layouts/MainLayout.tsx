@@ -1,58 +1,85 @@
 import React from 'react'
-import { AppBar, Box, Stack, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material'
-import { AccountCircle } from '@mui/icons-material'
 import { supabase } from 'configs/supabase';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Dropdown, Layout, Menu, Button, Typography, MenuProps, Row, Col, Affix } from 'antd';
+import { PlusCircleOutlined, UserOutlined } from '@ant-design/icons';
 
 const MainLayout = ({ children }: React.PropsWithChildren) => {
-
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  
-  const handleMenu = React.useCallback((event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [])
-  const handleClose = React.useCallback(() => setAnchorEl(null), [])
+  const navigate = useNavigate()
 
   const logout = React.useCallback(async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error?.message) {
+      console.log('ERR WHILE LOGGING OUT: ', error)
+      toast.error('Somthing went wrong...')
+    }
   }, [])
 
+  const handleMenuClick: MenuProps["onClick"] = async (e) => {
+    switch (e.key) {
+      case 'profile': {
+        console.log('WAW PROFILE')
+        break;
+      }
+
+      case 'logout': {
+        await logout()
+        break;
+      }
+
+      default: {
+        console.log('no options')
+      }
+    }
+  }
+
+  const AccountOptions = () => (
+    <Menu
+      items={[
+        {
+          key: 'profile',
+          label: 'Profile'
+        },
+        {
+          key: 'logout',
+          label: "Logout"
+        }
+      ]}
+      onClick={handleMenuClick}
+    />
+  )
+
   return (
-    <Box sx={{ padding: 0, margin: 0, flexGrow: 1 }}>
-      <AppBar position="sticky" component="nav">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-            MY SOCIAL WORLD
-          </Typography>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={handleClose}>Profile</MenuItem>
-            <MenuItem onClick={logout}>Logout</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-      {children}
-    </Box>
+    <Layout>
+      <Layout.Header color="primary" style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+        <Row
+          align="top"
+          justify="space-between" 
+        >
+          <Col>
+            <Typography.Title 
+              style={{ color: '#fff', marginTop: 6 }}>POSTBOOK</Typography.Title>
+          </Col>
+          <Col>
+            <Dropdown
+              overlay={<AccountOptions />}
+              placement="bottomRight"
+            >
+              <Button type="text" style={{ color: '#fff' }} size="large" icon={<UserOutlined />} />
+            </Dropdown>
+          </Col>
+        </Row>
+      </Layout.Header>
+      <Layout.Content
+        style={{
+          padding: '0 50px',
+          marginTop: '64px'
+        }}
+      >
+        { children }
+      </Layout.Content>
+    </Layout>
   )
 }
 
