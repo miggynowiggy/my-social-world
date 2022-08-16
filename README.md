@@ -1,6 +1,6 @@
 # MY SOCIAL WORLD
 
-A Sample Repo that shows the capabilities of React and Supabase to create a seemless and intuitive MVPs
+A Sample Repo that shows the capabilities of React and Supabase to create a seamless and intuitive MVPs
 
 ## Technologies Used
 
